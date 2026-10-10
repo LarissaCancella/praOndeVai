@@ -65,24 +65,34 @@ Total anual sem Encargos Especiais (R$ bi): 2019: 2004; 2020: 2521; 2021: 2065; 
 
 ## Pendências de verificação antes de publicar
 
-- [ ] **Ciência e Tecnologia (2025) e Gestão Ambiental (2024 em diante):** os saltos parecem vir de operações financeiras de fundos (FNDCT, Fundo Clima), ou seja, empréstimos, e não de gasto direto. Abrir as subfunções e, se preciso, separar por grupo de natureza da despesa (GND 5, inversões financeiras).
-- [ ] **Habitação quase zero:** o Minha Casa Minha Vida é classificado em outras funções ou passa por fundos. Explicar no site ou buscar por programa.
-- [ ] **2020 (pandemia):** o auxílio emergencial levou a Assistência Social a cerca de R$ 606 bi. Oferecer uma visão "sem créditos extraordinários" ou destacar o ano.
-- [ ] **Atribuição de orçamento:** a proposta de 2019 foi enviada pelo governo Temer; a de 2023, pelo governo Bolsonaro, alterada pela PEC da Transição. Mostrar isso no site.
-- [ ] **Regras fiscais:** teto de gastos (até 2023), arcabouço (2024 em diante) e pisos de Saúde e Educação. Fazer cartões de contexto.
-- [ ] Conferir alguns totais contra o Relatório Resumido de Execução Orçamentária em PDF ou contra o Siga Brasil.
+- [x] **Ciência e Tecnologia e Gestão Ambiental:** confirmado com a MSC (função × GND). Em 2025, 23,4 dos 35,0 bi de C&T e 26,5 dos 32,1 bi de Gestão Ambiental (nominais) são GND 5, inversões financeiras. O mesmo vale para Trabalho (28,9 bi, FAT/BNDES), Agricultura (19,7 bi) e Educação (7,8 bi, Fies). O site tem a opção "sem inversões financeiras", aplicada igualmente aos dois períodos, e marca as funções em que o GND 5 passa de 5%.
+- [~] **Habitação quase zero:** há um cartão de contexto explicando. Falta confirmar onde a União classifica os aportes do MCMV/FAR (indício: Encargos Especiais, subfunção 846). Isso exige dados por ação (Portal da Transparência, arquivos "despesas-execucao", ou Siga Brasil).
+- [x] **2020 (pandemia):** destacado no gráfico. A opção "excluir anos de calamidade" retira **2020 e 2024** (calamidade reconhecida pelo Congresso: DL 6/2020 e DL 36/2024), com a mesma regra para os dois governos.
+- [x] **Atribuição de orçamento:** cartão "Quem elaborou o orçamento de cada ano".
+- [x] **Regras fiscais:** cartões sobre teto/arcabouço, pisos de Saúde e Educação e precatórios.
+- [~] **Conferência:** a MSC confere com o RREO centavo por centavo na maioria das funções e anos. As divergências aparecem na página "Método" (tabela `conferencia` em `painel.json`). Falta conferir alguns totais contra o RREO em PDF ou o Siga Brasil.
+- [ ] **Cartões com `revisar: true` em `site/contexto.js`:** uma pessoa precisa conferir cada fato na fonte primária antes de publicar (pisos, DL 6/2020, DL 36/2024, MCMV, precatórios).
+- [ ] **Quem mantém o site:** preencher `MANTENEDOR` em `site/app.js` e conferir as regras do TSE.
+
+## Achados da sessão de 09/10 (tarde)
+
+- **MSC orçamentária** (`/tt/msc_orcamentaria`, `id_ente=1`, `classe_conta=6`, `id_tv=ending_balance`) traz função, subfunção e natureza da despesa por linha. São cerca de 175 mil linhas por mês e cerca de 3 minutos por matriz. Contas de execução: 6.2.2.1.3.01 a .07 (as .05 a .07 são o empenhado inscrito em restos a pagar no fim do ano). Empenhado = soma das sete contas; liquidado = .03, .04 e .07. Natureza da despesa no formato "CGMMEE00" (o GND é o 2º dígito). Excluir a modalidade 91 (intra) para bater com o RREO.
+- Na MSC, Encargos Especiais inclui o refinanciamento da dívida (subfunções 841 e 842), que o RREO não traz.
+- **As subfunções do RREO não são estáveis:** o modelo do Anexo 02 muda (em 2025 o Bolsa Família foi para "Demais Subfunções"). As subfunções do site vêm da MSC, com código. A Portaria SOF/MPO 169/2024 criou a 245 (Serviços Socioassistenciais) e a 246 (Segurança de Renda) a partir de 2025; a 244 deixou de ser usada.
 
 ## Próximos passos
 
-1. Rodar `python etl/funcoes.py` (gera `data/funcoes.json`) e conferir os números da tabela acima.
-2. Coletar subfunções e programas para a tela "para onde foi o dinheiro" e para resolver as pendências.
-3. Construir o front-end:
-   - Comparador por função: barras lado a lado, alternando entre ano fechado e janeiro a agosto, e entre valor real e nominal.
-   - Série anual de 2019 a 2026.
-   - Lista "onde aumentou e onde cortou", ordenada por variação em R$ e em %.
-   - Cartões de contexto.
-   - Página "Método e fontes".
-4. Publicar como site estático em CDN e agendar a coleta (o próximo bimestre sai no fim de novembro, depois da eleição).
+1. [x] Rodar `python etl/funcoes.py` e conferir os números da tabela acima (conferido em 09/10: bate).
+2. [~] Subfunções coletadas (MSC, com código). Programas e ações ainda não (necessário para o MCMV).
+3. [x] Front-end (primeira versão, `site/`):
+   - Comparador por função com barras lado a lado, ano fechado ou jan–ago, real ou nominal, sem inversões financeiras e sem anos de calamidade.
+   - Ordenação por tamanho, variação em R$ e em % (a lista "onde aumentou e onde cortou").
+   - Página por função com série anual, médias por período, inversões hachuradas, subfunções e cartões.
+   - Cartões de contexto ao lado do gráfico (`site/contexto.js`).
+   - Página "Método e fontes", com a tabela de conferência MSC × RREO.
+4. [ ] Revisão humana dos cartões `revisar: true`, preencher `MANTENEDOR`, revisar a neutralidade dos textos.
+5. [ ] Publicar no Cloudflare Pages (pasta `site/`). Antes, considerar copiar o `htm/preact/standalone.module.js` para dentro de `site/` (hoje vem do unpkg).
+6. [ ] Agendar a coleta (o próximo bimestre sai no fim de novembro, depois da eleição).
 
 ## Arquitetura sugerida (inspirada em seuimposto.com, analisado em 09/10)
 
@@ -95,9 +105,39 @@ O site de referência ("Apuração 2026") usa:
 
 Para este projeto: ETL em Python gerando JSON, front estático (Preact com htm, ou React com Vite), gráficos com D3 ou uma biblioteca leve, e hospedagem no Cloudflare Pages.
 
+## Mapa de transferências por estado (09/10, noite)
+
+- **Investimento por estado foi descartado:** no Portal da Transparência ("despesas-execucao"), só de 12% (dez/2022) a 25% (dez/2025) do GND 4 tem UF; o resto é "Nacional" ou região. A cobertura muda entre os períodos (provavelmente por causa das emendas), o que distorceria a comparação.
+- **Mapa de transferências adotado:** arquivos mensais "transferencias" do Portal da Transparência, com UF do favorecido em 98–99% do valor, cobertura parecida nos dois períodos. Categorias: constitucionais (por fórmula), legais e voluntárias, e só investimento (GND 4). Valores por habitante usam o Censo 2022 para todos os anos.
+- **Conferência:** o FPE por UF do Portal bate centavo por centavo com o arquivo mensal do Tesouro (CKAN, "Transferências Constitucionais Para Estados") em dez/2022 e dez/2025. O ETL repete essa conferência a cada execução (`conferencia_fpe` em `mapa.json`).
+- **Atenção:** o servidor de downloads da CGU bloqueia temporariamente (HTTP 405) depois de cerca de 28 downloads seguidos. O ETL espera 20 s entre arquivos e tenta de novo com espera crescente. O cache mensal agregado fica em `data/raw/transf/`.
+
+## Cores (decisão da usuária, 09/10)
+
+2019–2022 (Bolsonaro) em azul e 2023–2026 (Lula) em vermelho, as cores dos partidos, em todo o site (`--gov-a` e `--gov-b` em `styles.css`). Aumento e corte continuam marcados por ▲/▼, não por cor.
+
+## Aba Parlamentares (09/10, noite)
+
+- Escopo escolhido pela usuária: deputados federais e senadores das legislaturas 56 e 57, com partido, UF, cargo, subsídio do cargo, cota parlamentar e presença no plenário.
+- **Subsídio:** igual para todos, conferido no texto dos decretos: R$ 33.763,00 (DL 276/2014, desde fev/2015); pelo DL 172/2022, R$ 39.293,32 (jan/2023), R$ 41.650,92 (abr/2023), R$ 44.008,52 (fev/2024) e R$ 46.366,19 (fev/2025).
+- **Presença na Câmara (Plenário):** frequência oficial pelo serviço legado `SitCamaraWS/sessoesreunioes.asmx/ListarPresencasParlamentar` (dia a dia: "Presença", "Ausência justificada" com motivo, "Ausência"). É o registro usado para o desconto de faltas. **A carteira da cota não serve** (às vezes é a de outra legislatura). O ETL consulta as carteiras 1 a 700 de cada legislatura, uma vez para a legislatura inteira, e associa ao deputado pelo nome devolvido, usando todos os nomes do histórico e a UF (`casar_carteira`). Conferido em 09/10: todos os que ficaram o ano inteiro no cargo têm frequência, e ninguém passa do total de dias com sessão do ano. São no máximo 3 consultas simultâneas (com 8, o servidor derruba as conexões), e um 404 significa "sem registro" (não repetir). Cerca de 35 min sem cache. **2020:** a frequência só foi registrada em 13 dias (fevereiro e março); nas sessões remotas, não. O site avisa.
+- **Presença em comissões (Câmara):** reuniões formais encerradas fora do Plenário com presença no arquivo de presença em eventos (tipos em `TIPOS_COMISSAO`). É uma contagem, sem denominador.
+- Deputados e senadores não batem ponto: não existe registro de dias trabalhados, e o site diz isso.
+- **Presença no Senado:** dias com votação nominal (`/dadosabertos/votacao`), com códigos de ausência: NCom = não justificada; AP, MIS, LS, LP, LG, MERC… = justificadas. São só cerca de 36 a 40 dias por ano (conferido: a consulta anual e a soma das mensais dão o mesmo total). O código "NA" (64 ocorrências) está classificado como justificado; conferir o significado.
+- **Cota:** Câmara pelo `ideCadastro`; Senado (CEAPS) só pelo nome, casado por palavras com um candidato único. Os nomes sem par ficam em `ceaps_sem_par` (2019: senadores da legislatura anterior, despesas de janeiro).
+
 ## Estrutura
 
 ```
-etl/funcoes.py   coleta SICONFI + IPCA → data/funcoes.json (só biblioteca padrão)
-data/            saída do ETL (gerada)
+etl/funcoes.py   RREO Anexo 02 + IPCA → data/funcoes.json (funções, subfunções do RREO, deflatores)
+etl/gnd.py       MSC orçamentária → data/gnd.json (função × subfunção × GND), cerca de 45 min sem cache
+etl/painel.py    junta tudo → site/data/painel.json (dados do comparador) e confere MSC × RREO
+etl/transferencias.py  Portal da Transparência + IBGE + Tesouro → site/data/mapa.json (cerca de 30 min sem cache)
+etl/malha.py     malha das UFs do IBGE → site/data/ufs.json (caminhos SVG já projetados)
+etl/parlamentares.py   Câmara + Senado → site/data/parlamentares.json (cerca de 10 min sem cache)
+data/raw/        cache das respostas das APIs (fora do git)
+site/            front estático: index.html, app.js (Preact + htm via unpkg, sem build), mapa.js, util.js, contexto.js, styles.css
 ```
+
+Ordem para atualizar: `python etl/funcoes.py && python etl/gnd.py && python etl/painel.py && python etl/transferencias.py` (`etl/malha.py` só uma vez).
+Para ver localmente: `python -m http.server 8765 --directory site`.

@@ -25,6 +25,7 @@ Requer apenas a biblioteca padrão do Python.
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import time
 import urllib.parse
@@ -65,7 +66,10 @@ def get_json(url: str, params: dict, tentativas: int = 4) -> object:
             req = urllib.request.Request(full, headers={"Accept": "application/json",
                                                         "User-Agent": "transparencia-etl/0.1"})
             with urllib.request.urlopen(req, timeout=60) as r:
-                return json.loads(r.read().decode("utf-8"))
+                corpo = r.read()
+            if corpo[:2] == b"\x1f\x8b":  # o IBGE responde em gzip mesmo sem pedir
+                corpo = gzip.decompress(corpo)
+            return json.loads(corpo.decode("utf-8"))
         except Exception as e:  # rede instável nas APIs públicas é comum
             if i == tentativas - 1:
                 raise RuntimeError(f"Falha ao baixar {full}: {e}") from e
@@ -73,8 +77,15 @@ def get_json(url: str, params: dict, tentativas: int = 4) -> object:
     raise AssertionError
 
 
+RAW = Path(__file__).resolve().parent.parent / "data" / "raw"
+
+
 def rreo_anexo02(ano: int, periodo: int) -> list[dict]:
-    """Itens do RREO Anexo 02 da União. Lista vazia se o bimestre ainda não foi publicado."""
+    """Itens do RREO Anexo 02 da União. Lista vazia se o bimestre ainda não foi publicado.
+    Bimestres publicados ficam em cache em data/raw/."""
+    cache = RAW / f"rreo_a02_{ano}_{periodo}.json"
+    if cache.exists():
+        return json.loads(cache.read_text(encoding="utf-8"))
     itens, offset = [], 0
     while True:
         j = get_json(SICONFI, {
@@ -83,8 +94,18 @@ def rreo_anexo02(ano: int, periodo: int) -> list[dict]:
         })
         itens += j.get("items", [])
         if not j.get("hasMore"):
-            return itens
+            break
         offset += len(j.get("items", []))
+    if itens:
+        RAW.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps(itens, ensure_ascii=False), encoding="utf-8")
+    return itens
+
+
+def _chave(coluna: str) -> str | None:
+    return ("empenhado" if coluna.startswith(COL_EMPENHADO) else
+            "liquidado" if coluna.startswith(COL_LIQUIDADO) else
+            "dotacao" if coluna.startswith(COL_DOTACAO) else None)
 
 
 def por_funcao(itens: list[dict]) -> dict[str, dict[str, float]]:
@@ -96,12 +117,46 @@ def por_funcao(itens: list[dict]) -> dict[str, dict[str, float]]:
         nome = (i.get("conta") or "").strip()
         if nome not in FUNCOES:
             continue  # subfunções e linhas de total ficam de fora
-        col = i.get("coluna") or ""
-        chave = ("empenhado" if col.startswith(COL_EMPENHADO) else
-                 "liquidado" if col.startswith(COL_LIQUIDADO) else
-                 "dotacao" if col.startswith(COL_DOTACAO) else None)
+        chave = _chave(i.get("coluna") or "")
         if chave:
             out.setdefault(nome, {})[chave] = float(i["valor"])
+    return out
+
+
+def por_subfuncao(itens: list[dict]) -> dict[str, dict[str, dict[str, float]]]:
+    """{funcao: {subfuncao: {"empenhado": R$, "liquidado": R$}}}.
+
+    O Anexo 02 não traz o código da função pai: cada função vem seguida das suas subfunções,
+    terminando em "FUxx - Administração Geral" e "FUxx - Demais Subfunções". Usa essa ordem
+    (dentro de cada coluna) e confere que as subfunções somam o total da função."""
+    out: dict = {}
+    totais: dict = {}
+    atual: dict[str, str | None] = {}
+    for i in itens:
+        if i.get("rotulo") != ROTULO:
+            continue
+        chave = _chave(i.get("coluna") or "")
+        if chave not in ("empenhado", "liquidado"):
+            continue
+        nome = (i.get("conta") or "").strip()
+        if nome in FUNCOES:
+            atual[chave] = nome
+            totais[(nome, chave)] = float(i["valor"])
+            continue
+        if nome.isupper() or nome.startswith("TOTAL"):
+            atual[chave] = None  # linhas de total (I), (II), (III)
+            continue
+        pai = atual.get(chave)
+        if pai is None:
+            continue
+        if nome[:2] == "FU" and " - " in nome:
+            nome = nome.split(" - ", 1)[1]
+        d = out.setdefault(pai, {}).setdefault(nome, {})
+        d[chave] = d.get(chave, 0.0) + float(i["valor"])
+    for (f, chave), v in totais.items():
+        soma = sum(s.get(chave, 0.0) for s in out.get(f, {}).values())
+        if abs(soma - v) > max(1.0, abs(v) * 1e-6):
+            raise ValueError(f"Subfunções de {f} ({chave}) somam {soma:.2f}, função = {v:.2f}")
     return out
 
 
@@ -138,6 +193,8 @@ def main() -> None:
 
     anual: dict[int, dict] = {}    # anos fechados, 6º bimestre
     parcial: dict[int, dict] = {}  # mesmo período de todos os anos
+    sub_anual: dict[int, dict] = {}
+    sub_parcial: dict[int, dict] = {}
     ultimo_periodo_atual = 0
 
     # descobre o último bimestre publicado do ano corrente
@@ -146,15 +203,21 @@ def main() -> None:
         if itens:
             ultimo_periodo_atual = p
             parcial[ano_atual] = por_funcao(itens)
+            sub_parcial[ano_atual] = por_subfuncao(itens)
             break
     if not ultimo_periodo_atual:
         raise SystemExit(f"Nenhum bimestre de {ano_atual} publicado ainda.")
     mes_corte = ultimo_periodo_atual * 2
 
     for ano in range(args.ano_inicio, ano_atual):
-        anual[ano] = por_funcao(rreo_anexo02(ano, 6))
-        parcial[ano] = por_funcao(rreo_anexo02(ano, ultimo_periodo_atual))
+        itens = rreo_anexo02(ano, 6)
+        anual[ano], sub_anual[ano] = por_funcao(itens), por_subfuncao(itens)
+        itens = rreo_anexo02(ano, ultimo_periodo_atual)
+        parcial[ano], sub_parcial[ano] = por_funcao(itens), por_subfuncao(itens)
         print(f"{ano}: ok", flush=True)
+
+    deflator_anual = {str(a): fator(idx, base, a, 12) for a in sorted(anual)}
+    deflator_parcial = {str(a): fator(idx, base, a, mes_corte) for a in sorted(parcial)}
 
     def real(valor: float, ano: int, ate_mes: int) -> float:
         return valor * fator(idx, base, ano, ate_mes) / 1e9  # R$ bilhões a preços de `base`
@@ -167,6 +230,16 @@ def main() -> None:
                          for a in sorted(anual)}
         serie_parcial = {str(a): round(real(parcial[a].get(f, {}).get("liquidado", 0.0), a, mes_corte), 3)
                          for a in sorted(parcial)}
+        serie_parcial_nominal = {str(a): round(parcial[a].get(f, {}).get("liquidado", 0.0) / 1e9, 3)
+                                 for a in sorted(parcial)}
+        nomes_sub = list(dict.fromkeys(s for a in sub_anual for s in sub_anual[a].get(f, {})))
+        subfuncoes = [{
+            "subfuncao": s,
+            "anual_nominal": {str(a): round(sub_anual[a].get(f, {}).get(s, {}).get("empenhado", 0.0) / 1e9, 3)
+                              for a in sorted(sub_anual)},
+            "parcial_nominal": {str(a): round(sub_parcial[a].get(f, {}).get(s, {}).get("liquidado", 0.0) / 1e9, 3)
+                                for a in sorted(sub_parcial)},
+        } for s in nomes_sub]
         por_gov = {}
         for g in GOVERNOS:
             anos = range(g["inicio"], g["fim"] + 1)
@@ -177,7 +250,8 @@ def main() -> None:
             }
         funcoes_out.append({"funcao": f, "encargos": f == ENCARGOS, "anual_real": serie_anual,
                             "anual_nominal": serie_nominal, "parcial_real": serie_parcial,
-                            "governos": por_gov})
+                            "parcial_nominal": serie_parcial_nominal,
+                            "governos": por_gov, "subfuncoes": subfuncoes})
 
     def total(serie: str, ano: str, com_encargos: bool) -> float:
         return round(sum(x[serie][ano] for x in funcoes_out if com_encargos or not x["encargos"]), 3)
@@ -189,6 +263,7 @@ def main() -> None:
         "parcial": {"ate_mes": mes_corte, "bimestre": ultimo_periodo_atual,
                     "descricao": f"janeiro a {['', 'fevereiro', 'abril', 'junho', 'agosto', 'outubro', 'dezembro'][ultimo_periodo_atual]}"},
         "governos": GOVERNOS,
+        "deflator": {"anual": deflator_anual, "parcial": deflator_parcial},
         "totais": {
             "anual_sem_encargos": {a: total("anual_real", a, False) for a in map(str, sorted(anual))},
             "anual_com_encargos": {a: total("anual_real", a, True) for a in map(str, sorted(anual))},
