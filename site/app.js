@@ -4,7 +4,7 @@ import { Mapa } from "./mapa.js";
 import { Parlamentares } from "./parlamentares.js";
 import { CALAMIDADE, nf1, fmt, fmtVar, pct, fmtPct, slug, mesAno, media, faixa, anosDoGoverno, unidade } from "./util.js";
 // Quem mantém o site (exigência de transparência; ver regras do TSE no CLAUDE.md).
-const MANTENEDOR = "Larissa Cancella";
+const Mantenedor = () => html`<a href="https://github.com/LarissaCancella" target="_blank" rel="noopener">@LarissaCancella</a>`;
 
 // ---------- cálculo (mesma regra para os dois governos) ----------
 
@@ -257,7 +257,7 @@ function Metodo({ D }) {
     </ul>
 
     <h2>Sobre este site</h2>
-    <p>Mostra dados e contexto. Não recomenda voto nem faz pedido de voto. Mantido por ${MANTENEDOR}.</p>
+    <p>Mostra dados e contexto. Não recomenda voto nem faz pedido de voto. Mantido por <${Mantenedor} />.</p>
   </section>`;
 }
 
@@ -295,7 +295,7 @@ function App() {
     <main>${pagina}</main>
     <footer class="rodape"><div class="wrap">
       <p>Fontes: Tesouro Nacional (SICONFI: RREO e MSC) e Banco Central (IPCA). Valores em ${unidade(D, op)}.</p>
-      <p>Este site mostra dados e contexto; não recomenda voto. Mantido por ${MANTENEDOR}.</p>
+      <p>Este site mostra dados e contexto; não recomenda voto. Mantido por <${Mantenedor} />.</p>
     </div></footer>`;
 }
 
