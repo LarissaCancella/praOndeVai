@@ -4,7 +4,7 @@ import { Mapa } from "./mapa.js";
 import { Parlamentares } from "./parlamentares.js";
 import { CALAMIDADE, nf1, fmt, fmtVar, pct, fmtPct, slug, mesAno, media, faixa, anosDoGoverno, unidade } from "./util.js";
 // Quem mantém o site (exigência de transparência; ver regras do TSE no CLAUDE.md).
-const MANTENEDOR = "[preencher: nome ou organização responsável e contato]";
+const MANTENEDOR = "Larissa Cancella";
 
 // ---------- cálculo (mesma regra para os dois governos) ----------
 

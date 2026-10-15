@@ -72,7 +72,7 @@ Total anual sem Encargos Especiais (R$ bi): 2019: 2004; 2020: 2521; 2021: 2065; 
 - [x] **Regras fiscais:** cartões sobre teto/arcabouço, pisos de Saúde e Educação e precatórios.
 - [~] **Conferência:** a MSC confere com o RREO centavo por centavo na maioria das funções e anos. As divergências aparecem na página "Método" (tabela `conferencia` em `painel.json`). Falta conferir alguns totais contra o RREO em PDF ou o Siga Brasil.
 - [ ] **Cartões com `revisar: true` em `site/contexto.js`:** uma pessoa precisa conferir cada fato na fonte primária antes de publicar (pisos, DL 6/2020, DL 36/2024, MCMV, precatórios).
-- [ ] **Quem mantém o site:** preencher `MANTENEDOR` em `site/app.js` e conferir as regras do TSE.
+- [~] **Quem mantém o site:** `MANTENEDOR` = "Larissa Cancella" (15/10). Falta conferir as regras do TSE e decidir se entra um contato.
 
 ## Achados da sessão de 09/10 (tarde)
 
