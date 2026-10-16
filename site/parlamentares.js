@@ -29,6 +29,10 @@ export function Parlamentares({ Cartoes }) {
   const [partido, setPartido] = useState("");
   const [uf, setUf] = useState("");
   const [ordem, setOrdem] = useState({ col: "nome", dir: 1 });
+  const [pagina, setPagina] = useState(1);
+  const [porPagina, setPorPagina] = useState(20);
+  // qualquer mudança de filtro ou ordenação volta para a primeira página
+  useEffect(() => setPagina(1), [casa, ano, busca, partido, uf, ordem.col, ordem.dir, porPagina]);
 
   useEffect(() => {
     fetch("data/parlamentares.json").then((r) => r.json())
@@ -67,6 +71,9 @@ export function Parlamentares({ Cartoes }) {
 
   const subs = subsidiosDoAno(P.subsidio, ano);
   const totCota = filtradas.reduce((s, l) => s + l.a.cota, 0);
+  const totalPaginas = Math.max(1, Math.ceil(filtradas.length / porPagina));
+  const pag = Math.min(pagina, totalPaginas);
+  const visiveis = filtradas.slice((pag - 1) * porPagina, pag * porPagina);
   const Seg = ({ v, set, opcoes }) => html`<div class="seg" role="group">
     ${opcoes.map(([k, r]) => html`<button aria-pressed=${v === k} onClick=${() => set(k)}>${r}</button>`)}</div>`;
 
@@ -114,7 +121,7 @@ export function Parlamentares({ Cartoes }) {
               ${casa === "camara" ? html`<${Th} col="comissao" cls="col-opc">Reuniões de comissão</${Th}><${Th} col="mandato" cls="col-opc">Dias no mandato</${Th}>` : null}
               <${Th} col="cota">Cota parlamentar</${Th}>
             </tr></thead>
-            <tbody>${filtradas.map((l) => html`<tr key=${l.p.id}>
+            <tbody>${visiveis.map((l) => html`<tr key=${l.p.id}>
               <td class="nome"><b>${l.p.nome}</b><span class="so-celular marcador">${l.partido} · ${l.p.uf}</span>
                 <span class="marcador">${l.p.cargo}${l.p.condicao?.includes("Suplente") ? " · assumiu como suplente" : ""}</span></td>
               <td class="col-opc">${l.partido}</td><td class="col-opc">${l.p.uf}</td>
@@ -126,6 +133,8 @@ export function Parlamentares({ Cartoes }) {
               <td>${brl.format(l.a.cota)}</td>
             </tr>`)}</tbody>
           </table></div>
+          <${Paginacao} pag=${pag} total=${totalPaginas} itens=${filtradas.length} porPagina=${porPagina}
+            irPara=${(n) => { setPagina(n); document.querySelector(".tabela-parl")?.scrollIntoView({ block: "nearest" }); }} setPorPagina=${setPorPagina} />
           <p class="marcador">${casa === "camara"
             ? "Presença: frequência oficial da Câmara nos dias com sessão deliberativa no Plenário, contados só enquanto o deputado estava em exercício. É o registro usado para descontar do subsídio as faltas sem justificativa. Passe o mouse sobre a ausência justificada para ver os motivos. Reuniões de comissão: reuniões formais (deliberativas, audiências públicas, comparecimento de ministros etc.) com presença registrada; não há total possível para comparar, porque cada deputado integra comissões diferentes."
             : "Presença: dias com votação nominal no Plenário em que o senador esteve presente em ao menos uma votação. São poucos dias por ano (cerca de 35 a 40), porque a maioria das matérias é aprovada em votação simbólica, sem registro individual. Ausências justificadas incluem licenças, missões oficiais e atividade parlamentar fora do plenário."}
@@ -134,4 +143,27 @@ export function Parlamentares({ Cartoes }) {
         <${Cartoes} funcao="Parlamentares" />
       </div>
     </section>`;
+}
+
+// Navegação entre páginas: primeira, anterior, números próximos da atual, próxima, última.
+function Paginacao({ pag, total, itens, porPagina, irPara, setPorPagina }) {
+  if (!itens) return html`<p class="marcador">Nenhum parlamentar com esses filtros.</p>`;
+  const ini = (pag - 1) * porPagina + 1, fim = Math.min(pag * porPagina, itens);
+  const nums = [...new Set([1, pag - 1, pag, pag + 1, total])].filter((n) => n >= 1 && n <= total).sort((a, b) => a - b);
+  const botoes = [];
+  nums.forEach((n, i) => {
+    if (i && n - nums[i - 1] > 1) botoes.push(html`<span class="pag-gap">…</span>`);
+    botoes.push(html`<button aria-current=${n === pag ? "page" : null} onClick=${() => irPara(n)}>${n}</button>`);
+  });
+  return html`<nav class="paginacao" aria-label="Páginas da tabela">
+    <span class="pag-info">${nf0.format(ini)}–${nf0.format(fim)} de ${nf0.format(itens)}</span>
+    <div class="pag-botoes">
+      <button disabled=${pag === 1} onClick=${() => irPara(pag - 1)} aria-label="Página anterior">‹ Anterior</button>
+      ${botoes}
+      <button disabled=${pag === total} onClick=${() => irPara(pag + 1)} aria-label="Próxima página">Próxima ›</button>
+    </div>
+    <label class="pag-tam">Por página
+      <select class="sel" value=${porPagina} onChange=${(e) => setPorPagina(+e.target.value)}>
+        ${[20, 50, 100].map((n) => html`<option value=${n}>${n}</option>`)}</select></label>
+  </nav>`;
 }

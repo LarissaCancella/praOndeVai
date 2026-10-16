@@ -199,3 +199,15 @@ a:hover { color: var(--destaque); }
   .busca { min-width: 0; width: 100%; }
   .controles .grupo { flex-wrap: wrap; }
 }
+
+/* paginação da tabela de parlamentares */
+.paginacao { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 14px 0 6px; font-size: .85rem; }
+.pag-info { color: var(--tinta-2); }
+.pag-botoes { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.pag-botoes button { font: 600 .82rem var(--sans); background: transparent; color: var(--tinta); border: 1px solid var(--linha); border-radius: 3px; padding: 5px 10px; cursor: pointer; min-width: 34px; }
+.pag-botoes button:hover:not(:disabled) { border-color: var(--tinta); }
+.pag-botoes button[aria-current="page"] { background: var(--tinta); color: var(--papel); border-color: var(--tinta); }
+.pag-botoes button:disabled { opacity: .35; cursor: default; }
+.pag-gap { color: var(--tinta-2); padding: 0 2px; }
+.pag-tam { display: inline-flex; align-items: center; gap: 6px; color: var(--tinta-2); }
+@media (max-width: 600px) { .paginacao { justify-content: center; } .pag-info { width: 100%; text-align: center; } }
