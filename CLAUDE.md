@@ -72,7 +72,7 @@ Total anual sem Encargos Especiais (R$ bi): 2019: 2004; 2020: 2521; 2021: 2065; 
 - [x] **Regras fiscais:** cartões sobre teto/arcabouço, pisos de Saúde e Educação e precatórios.
 - [~] **Conferência:** a MSC confere com o RREO centavo por centavo na maioria das funções e anos. As divergências aparecem na página "Método" (tabela `conferencia` em `painel.json`). Falta conferir alguns totais contra o RREO em PDF ou o Siga Brasil.
 - [x] **Cartões com `revisar: true`:** revisados em 15/10, com fontes primárias e dados (`docs/revisao-cartoes.md`). O cartão de precatórios tinha um erro: as sentenças ficam ~98% em Encargos Especiais, não em Previdência e Assistência. Limitação: o piso × aplicado de Saúde e Educação da União só existe no RREO em PDF.
-- [~] **Quem mantém o site:** `Mantenedor` em `site/app.js`: @LarissaCancella com link para o perfil no GitHub (15/10). Falta conferir as regras do TSE.
+- [x] **Quem mantém o site e regras do TSE (15/10):** `Mantenedor` em `site/app.js` (@LarissaCancella, link para o GitHub). Lido o texto compilado da Res.-TSE 23.610/2019 (com a Res. 23.755/2026): um site de pessoa natural, sem pedido de voto e sem pagamento, é livre manifestação do pensamento (art. 27, § 1º; art. 28, § 6º), limitada só por ofensa à honra ou por fatos sabidamente inverídicos. Cuidados: não pagar anúncios ou impulsionamento para o site (art. 29: só candidatos e partidos podem impulsionar), não usar domínio ou perfil de empresa ou de órgão público (art. 29, § 1º), não divulgar pesquisa eleitoral, manter a autoria identificável (vedado o anonimato, art. 57-D da Lei 9.504) e não usar conteúdo gerado por IA. Não é parecer jurídico.
 
 ## Achados da sessão de 09/10 (tarde)
 
