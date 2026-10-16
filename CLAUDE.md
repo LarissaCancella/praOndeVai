@@ -66,12 +66,12 @@ Total anual sem Encargos Especiais (R$ bi): 2019: 2004; 2020: 2521; 2021: 2065; 
 ## Pendências de verificação antes de publicar
 
 - [x] **Ciência e Tecnologia e Gestão Ambiental:** confirmado com a MSC (função × GND). Em 2025, 23,4 dos 35,0 bi de C&T e 26,5 dos 32,1 bi de Gestão Ambiental (nominais) são GND 5, inversões financeiras. O mesmo vale para Trabalho (28,9 bi, FAT/BNDES), Agricultura (19,7 bi) e Educação (7,8 bi, Fies). O site tem a opção "sem inversões financeiras", aplicada igualmente aos dois períodos, e marca as funções em que o GND 5 passa de 5%.
-- [~] **Habitação quase zero:** há um cartão de contexto explicando. Falta confirmar onde a União classifica os aportes do MCMV/FAR (indício: Encargos Especiais, subfunção 846). Isso exige dados por ação (Portal da Transparência, arquivos "despesas-execucao", ou Siga Brasil).
+- [x] **Habitação quase zero:** confirmado no Portal da Transparência: FAR (ação 00AF, GND 5) e subvenções (00CW) ficam em Encargos Especiais; em Habitação fica a 00TI (produção habitacional).
 - [x] **2020 (pandemia):** destacado no gráfico. A opção "excluir anos de calamidade" retira **2020 e 2024** (calamidade reconhecida pelo Congresso: DL 6/2020 e DL 36/2024), com a mesma regra para os dois governos.
 - [x] **Atribuição de orçamento:** cartão "Quem elaborou o orçamento de cada ano".
 - [x] **Regras fiscais:** cartões sobre teto/arcabouço, pisos de Saúde e Educação e precatórios.
 - [~] **Conferência:** a MSC confere com o RREO centavo por centavo na maioria das funções e anos. As divergências aparecem na página "Método" (tabela `conferencia` em `painel.json`). Falta conferir alguns totais contra o RREO em PDF ou o Siga Brasil.
-- [ ] **Cartões com `revisar: true` em `site/contexto.js`:** uma pessoa precisa conferir cada fato na fonte primária antes de publicar (pisos, DL 6/2020, DL 36/2024, MCMV, precatórios).
+- [x] **Cartões com `revisar: true`:** revisados em 15/10, com fontes primárias e dados (`docs/revisao-cartoes.md`). O cartão de precatórios tinha um erro: as sentenças ficam ~98% em Encargos Especiais, não em Previdência e Assistência. Limitação: o piso × aplicado de Saúde e Educação da União só existe no RREO em PDF.
 - [~] **Quem mantém o site:** `Mantenedor` em `site/app.js`: @LarissaCancella com link para o perfil no GitHub (15/10). Falta conferir as regras do TSE.
 
 ## Achados da sessão de 09/10 (tarde)
@@ -90,7 +90,7 @@ Total anual sem Encargos Especiais (R$ bi): 2019: 2004; 2020: 2521; 2021: 2065; 
    - Página por função com série anual, médias por período, inversões hachuradas, subfunções e cartões.
    - Cartões de contexto ao lado do gráfico (`site/contexto.js`).
    - Página "Método e fontes", com a tabela de conferência MSC × RREO.
-4. [ ] Revisão humana dos cartões `revisar: true`, preencher `MANTENEDOR`, revisar a neutralidade dos textos.
+4. [~] Cartões revisados e mantenedor preenchido. Falta revisar a neutralidade dos textos e as regras do TSE.
 5. [ ] Publicar no Cloudflare Pages (pasta `site/`). Antes, considerar copiar o `htm/preact/standalone.module.js` para dentro de `site/` (hoje vem do unpkg).
 6. [ ] Agendar a coleta (o próximo bimestre sai no fim de novembro, depois da eleição).
 

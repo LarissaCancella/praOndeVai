@@ -36,16 +36,18 @@ export const CONTEXTO = [
     titulo: "Pisos constitucionais de Saúde e Educação",
     funcoes: ["Saúde", "Educação"],
     texto:
-      "Durante o teto de gastos (EC 95/2016), os pisos federais de Saúde e Educação passaram a ser corrigidos só pela inflação, " +
-      "a partir do valor de 2017. Com a LC 200/2023, voltaram a ser calculados pela receita a partir de 2024: " +
-      "15% da receita corrente líquida para Saúde (art. 198 da Constituição) e 18% da receita de impostos líquida para Educação (art. 212). " +
-      "Parte do aumento nessas funções a partir de 2024 decorre dessa regra.",
+      "Durante o teto de gastos (EC 95/2016), os pisos federais de Saúde e Educação foram corrigidos só pela inflação, a partir do valor " +
+      "de 2017. A EC 126/2022 revogou essa regra, com o fim do teto pela LC 200/2023, e o TCU decidiu que os pisos calculados pela receita " +
+      "voltam a valer a partir de 2024 (Acórdão 2338/2023): 15% da receita corrente líquida para Saúde (art. 198 da Constituição) e 18% da " +
+      "receita de impostos, descontadas as transferências a estados e municípios, para Educação (art. 212). A regra de cálculo do piso " +
+      "muda entre os dois períodos comparados.",
     fontes: [
       { nome: "EC 95/2016", url: `${PLANALTO}/constituicao/emendas/emc/emc95.htm` },
+      { nome: "EC 126/2022", url: `${PLANALTO}/constituicao/emendas/emc/emc126.htm` },
       { nome: "LC 200/2023", url: `${PLANALTO}/leis/lcp/lcp200.htm` },
       { nome: "Constituição, arts. 198 e 212", url: `${PLANALTO}/constituicao/constituicao.htm` },
+      { nome: "TCU, Acórdão 2338/2023", url: "https://portal.tcu.gov.br/imprensa/noticias/tcu-conclui-avaliacao-sobre-regras-fiscais-para-orcamento-da-saude-e-educacao" },
     ],
-    revisar: true,
   },
   {
     id: "pandemia-2020",
@@ -87,12 +89,15 @@ export const CONTEXTO = [
     titulo: "Por que Habitação aparece quase zerada",
     funcoes: ["Habitação", "Urbanismo", "Encargos Especiais"],
     texto:
-      "O Minha Casa, Minha Vida quase não aparece na função Habitação. O subsídio das faixas com financiamento é pago pelo FGTS, " +
-      "que não faz parte do orçamento da União, e os aportes da União ao programa (como os do Fundo de Arrendamento Residencial) " +
-      "são classificados em grande parte em outras funções, como Encargos Especiais. Acompanhar o programa exige dados por ação orçamentária, " +
-      "que este painel ainda não traz.",
-    fontes: [{ nome: "Portaria MCID 114/2023 (FAR)", url: "https://www.gov.br/cidades/pt-br/acesso-a-informacao/institucional/base-juridica/portarias/20231220_Portaria_MCID_114_MCMV_FAR_compilada.pdf" }],
-    revisar: true,
+      "O Minha Casa, Minha Vida quase não aparece na função Habitação. Parte do subsídio das faixas com financiamento é paga com recursos " +
+      "do FGTS, que não faz parte do orçamento da União. Já os principais aportes da União ao programa são classificados em Encargos " +
+      "Especiais: a integralização de cotas ao Fundo de Arrendamento Residencial (ação 00AF, uma inversão financeira) e as subvenções ao " +
+      "financiamento habitacional (ação 00CW). Na função Habitação fica sobretudo o apoio à produção habitacional (ação 00TI), que cresceu " +
+      "a partir de 2024. Acompanhar o programa por inteiro exige dados por ação, que este painel ainda não traz.",
+    fontes: [
+      { nome: "Portal da Transparência, execução da despesa", url: "https://portaldatransparencia.gov.br/download-de-dados/despesas-execucao" },
+      { nome: "Portaria MCID 114/2023 (FAR)", url: "https://www.gov.br/cidades/pt-br/acesso-a-informacao/institucional/base-juridica/portarias/20231220_Portaria_MCID_114_MCMV_FAR_compilada.pdf" },
+    ],
   },
   {
     id: "subfuncoes-2025",
@@ -117,16 +122,19 @@ export const CONTEXTO = [
   {
     id: "precatorios",
     titulo: "Precatórios adiados e pagos depois",
-    funcoes: ["*"],
+    funcoes: ["*", "Encargos Especiais"],
     texto:
-      "As EC 113 e 114/2021 limitaram o pagamento anual de precatórios (dívidas judiciais da União) a partir de 2022. " +
-      "Em 2023 o STF declarou o limite inconstitucional e o estoque acumulado foi pago no fim daquele ano, o que eleva a despesa de 2023 " +
-      "em funções como Previdência e Assistência Social.",
+      "A EC 114/2021 limitou o pagamento anual de precatórios (dívidas da União reconhecidas pela Justiça) de 2022 a 2026. Em 30/11/2023 o " +
+      "STF declarou o limite inconstitucional, e a MP 1.200/2023 abriu R$ 93,1 bilhões para quitar os atrasados de 2022 e 2023 e antecipar " +
+      "parte de 2024. Os precatórios são registrados quase todos na função Encargos Especiais, que fica fora dos totais do comparador: lá, " +
+      "as sentenças judiciais pagas passaram de cerca de R$ 60 bilhões em 2022 para R$ 153 bilhões em 2023. A EC 136/2025 retirou os " +
+      "precatórios da União do limite de despesas a partir de 2026.",
     fontes: [
-      { nome: "EC 113/2021", url: `${PLANALTO}/constituicao/emendas/emc/emc113.htm` },
       { nome: "EC 114/2021", url: `${PLANALTO}/constituicao/emendas/emc/emc114.htm` },
+      { nome: "MP 1.200/2023 (Agência Senado)", url: "https://www12.senado.leg.br/noticias/materias/2023/12/27/medida-provisoria-possibilita-pagamento-de-r-93-1-bilhoes-em-precatorios" },
+      { nome: "EC 136/2025", url: `${PLANALTO}/constituicao/emendas/emc/emc136.htm` },
+      { nome: "SICONFI, MSC orçamentária", url: "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/msc_orcamentaria" },
     ],
-    revisar: true, // a EC 136/2025 alterou de novo o regime de precatórios; conferir e citar
   },
 
   // ---------- parlamentares ----------
